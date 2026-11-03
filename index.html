@@ -1149,7 +1149,7 @@ header{padding-right:10px!important}
   <footer class="bar">
     <button class="plus" id="plus" aria-label="更多功能"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
     <div class="field">
-      <textarea id="ta" rows="1" placeholder="输入消息" enterkeyhint="send" inputmode="text" autocapitalize="sentences" autocomplete="off" spellcheck="true"></textarea>
+      <textarea id="ta" rows="1" placeholder="发消息" enterkeyhint="send" inputmode="text" autocapitalize="sentences" autocomplete="off" spellcheck="true"></textarea>
       <button class="act" id="stk" aria-label="表情包"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#8e8e93" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 0-8 8c4.4 0 8-3.6 8-8z"/><path d="M20 12h-4a4 4 0 0 0-4 4v4"/><path d="M9 10h.01M15 10h.01"/></svg></button>
       <button class="act" id="cam" aria-label="图片"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#8e8e93" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.6-2.4h6.8L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.6"/></svg></button>
     </div>
@@ -1223,7 +1223,7 @@ header{padding-right:10px!important}
 </section>
 <section id="lov" hidden></section>
 <section id="list" hidden>
-  <div class="lh"><h1>字卡聊天</h1><div class="lha">
+  <div class="lh"><h1 aria-hidden="true"></h1><div class="lha">
     <button id="lCards" aria-label="字卡库"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="13" height="17" rx="2.5"/><path d="M8 8h6M8 12h6M8 16h3"/><path d="M19 7v13a2 2 0 0 1-2 2"/></svg></button>
     <button id="lAdd" aria-label="新建联系人"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
     <button id="lMore" aria-label="更多"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><circle cx="12" cy="5" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="12" cy="19" r="1.9"/></svg></button>
@@ -1765,7 +1765,7 @@ function favFind(m){const k=favKey(m);return G.favs.find(f=>f.t===m.t&&f.type===
 function favToggle(m){
   const f=favFind(m);
   if(f){G.favs.splice(G.favs.indexOf(f),1);save();toast('已取消收藏');return}
-  const k=favKey(m);G.favs.unshift({id:Date.now()+Math.random().toString(36).slice(2,6),type:k.type,content:k.content,t:m.t,at:Date.now()});
+  const k=favKey(m);G.favs.unshift({id:Date.now()+Math.random().toString(36).slice(2,6),type:k.type,content:k.content,t:m.t,mine:!!m.mine,at:Date.now()});
   save();toast('已收藏，在加号里的「我的收藏」查看');
 }
 const fmtFull=t=>{const d=new Date(t);return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate()+' '+hhmm(t)};
@@ -1776,11 +1776,11 @@ function favDlg(){
     const draw=()=>{
       L.innerHTML='';const kw=q.value.trim().toLowerCase();
       const list=G.favs.filter(f=>!kw||(f.type!=='image'&&String(f.content).toLowerCase().includes(kw))||fmtFull(f.t).includes(kw));
-      if(!list.length){L.append(h('div','lempty',G.favs.length?'没有找到相关字卡':'还没有收藏\n长按对方发来的字卡，点「收藏」'));return}
+      if(!list.length){L.append(h('div','lempty',G.favs.length?'没有找到相关字卡':'还没有收藏\n长按聊天里的字卡，点「收藏」'));return}
       list.forEach(f=>{
         const r=h('div','fv'),c=h('div','ct');
         if(f.type==='image'){const im=h('img');im.src=f.content;im.alt='';c.append(im)}else c.textContent=f.content;
-        const m=h('div','mt2'),tm=h('span','','发送于 '+fmtFull(f.t)),del=h('button','fvd','取消收藏');
+        const m=h('div','mt2'),tm=h('span','',(f.mine?'我 · 发送于 ':'对方 · 发送于 ')+fmtFull(f.t)),del=h('button','fvd','取消收藏');
         del.onclick=()=>{G.favs.splice(G.favs.indexOf(f),1);save();draw()};
         m.append(tm,del);r.append(c,m);L.append(r);
       });
@@ -1792,7 +1792,7 @@ function msgMenu(m,el){
   const btns=[];
   if(!m.type||m.type==='emoji')btns.push(['复制',()=>copyText(m.text)]);
   if(m.type==='voice'&&m.text)btns.push(['复制文字',()=>copyText(m.text)]);
-  if(!m.mine&&(!m.type||m.type==='emoji'||m.type==='image')){const fc=favFind(m);btns.push([fc?'取消收藏':'收藏',()=>favToggle(m)])}
+  if(!m.type||m.type==='emoji'||m.type==='image'){const fc=favFind(m);btns.push([fc?'取消收藏':'收藏',()=>favToggle(m)])}
   if(m.type!=='pat'&&m.type!=='call')btns.push(['引用',()=>{editing=null;quoted={mine:m.mine,text:String(prev(m)).slice(0,60)};setQ();ta.focus()}]);
   if(m.mine&&!m.type)btns.push(['修改',()=>{quoted=null;editing=m;ta.value=m.text;fit();toggle();setQ();ta.focus()}]);
   btns.push(['删除',()=>askYes('删除这条消息？',()=>{S.msgs=S.msgs.filter(x=>x!==m);render(true);save();toast('消息已删除')}),'danger']);
@@ -2237,12 +2237,17 @@ function pickFont(done){
   f.click();
 }
 function applySkin(){
-  const r=document.documentElement.style,k=S.skin;
-  ['--bm','--bmc','--bt','--btc','--br'].forEach(v=>r.removeProperty(v));
+  const rs=document.documentElement.style,k=S.skin;
+  const set=(n,v)=>v?rs.setProperty(n,v):rs.removeProperty(n);
+  set('--bm-bg',k.bm);set('--bm-tail',k.bm);set('--bm-tx',k.bmc);
+  set('--bt-bg',k.bt);set('--bt-tail',k.bt);set('--bt-tx',k.btc);
+  set('--br',(k.rad===null||k.rad===undefined||k.rad==='')?'':k.rad+'px');
   document.documentElement.classList.remove('sq');
-  if(k.fs)r.setProperty('--fs',k.fs+'px');else r.removeProperty('--fs');
+  document.documentElement.classList.toggle('notail',!!k.notail);
+  if(k.fs)rs.setProperty('--fs',k.fs+'px');else rs.removeProperty('--fs');
   applyFont();
-  const sc=$('skinCss');if(sc)sc.textContent='';
+  let sc=$('skinCss');if(!sc){sc=document.createElement('style');sc.id='skinCss'}
+  sc.textContent=k.css||'';document.body.appendChild(sc);
 }
 function skinDlg(){
   modal('装扮',b=>{
@@ -2262,6 +2267,14 @@ function skinDlg(){
         mk('恢复系统字体',fm==='system'?'primary':'',()=>{k.font='system';upd();draw()});
         b.append(h('div','hint','字体文件会保存在本机浏览器里，并包含在完整备份中，导入大字体后首次显示可能稍慢。'))}
       rng('fs','文字大小',12,20,15);
+      b.append(h('div','hint','气泡'));
+      col('bm','--bm','我的气泡颜色');col('bmc','--bmc','我的文字颜色');
+      col('bt','--bt','对方气泡颜色');col('btc','--btc','对方文字颜色');
+      {const i=h('input');i.type='range';i.min=0;i.max=22;i.value=(k.rad===null||k.rad===undefined)?7:k.rad;i.oninput=()=>{k.rad=Number(i.value);upd()};row('气泡圆润程度',i)}
+      {const l=h('label','sw'),c=h('input');c.type='checkbox';c.checked=!!k.notail;c.onchange=()=>{k.notail=c.checked;upd()};l.append(h('span','','隐藏气泡小尾巴'),c);b.append(l)}
+      b.append(h('div','hint','自定义 CSS（可粘贴导入，写在这里的样式会覆盖上面的设置；加上 !important 更容易生效）'));
+      {const ta=h('textarea');ta.value=k.css||'';ta.placeholder='/* 例如 */\n#app #chat .r.mine .m{border-radius:18px!important}';ta.style.cssText='width:100%;min-height:130px;box-sizing:border-box;font:12px/1.5 ui-monospace,Menlo,monospace';ta.oninput=()=>{k.css=ta.value;upd()};b.append(ta)}
+      {const rs=h('button','danger','恢复默认气泡');rs.onclick=()=>{k.bm=k.bmc=k.bt=k.btc='';k.rad=null;k.css='';k.notail=false;upd();draw();toast('已恢复默认气泡')};b.append(rs)}
     };
     draw();
   },[['完成',null,'primary']]);
@@ -2606,7 +2619,7 @@ async function exportFullBackup(){
     const state=JSON.parse(JSON.stringify(G)),audio=[];
     let font=null;
     try{const fb=await kv.get('userfont');if(fb)font={name:state.skin&&state.skin.fontName||'自定义字体',data:await blobToDataURL(new Blob([fb]))}}catch(e){}
-    const data={format:'chat-full-backup',version:3,exportedAt:new Date().toISOString(),includes:['全部聊天记录（含转账）','联系人、字卡库、设置、装扮','已嵌入的图片/表情/头像/背景/语音','导入的自定义字体'],excludes:['网站程序源码与部署文件','服务器端资源与外部链接内容'],state,audio,font};
+    const data={format:'chat-full-backup',version:3,exportedAt:new Date().toISOString(),includes:['全部聊天记录（含转账）','联系人、字卡库、设置、装扮（含气泡颜色与自定义 CSS）','我的收藏、信箱里的信、小空间动态','已嵌入的图片/表情/头像/背景/语音','导入的自定义字体'],excludes:['网站程序源码与部署文件','服务器端资源与外部链接内容'],state,audio,font};
     downloadJSON(data,'聊天网站完整备份_'+new Date().toISOString().slice(0,10)+'.json');
     toast('完整备份已导出'+(audio.length?'（含 '+audio.length+' 个本地音频）':''));
   }catch(e){console.error(e);toast('备份导出失败：'+(e.message||'资源读取错误'))}
@@ -2620,7 +2633,7 @@ function importFullBackup(){
       if(!st||!Array.isArray(st.contacts)||!Array.isArray(st.cards)||!Array.isArray(st.groups))throw Error('备份结构不完整');
       if(d.format&&d.format!=='chat-full-backup')throw Error('不是本网站的完整备份文件');
       if(d.audio!=null&&!Array.isArray(d.audio))throw Error('音频资源列表无效');
-      askYes('导入将替换当前联系人、聊天记录、字卡、装扮、设置及本地音乐。请先导出当前备份。网站程序源码不包含在数据备份中。确定继续吗？',async()=>{
+      askYes('导入将替换当前联系人、聊天记录、字卡、收藏、信箱、装扮和设置。请先导出当前备份。网站程序源码不包含在数据备份中。确定继续吗？',async()=>{
         try{
           toast('正在校验并准备数据…');
           const candidate=JSON.parse(JSON.stringify(st));
@@ -2630,6 +2643,8 @@ function importFullBackup(){
           candidate.cardSeq=candidate.cardSeq||1;
           candidate.skin={...SKIN_DEF,...(candidate.skin||{})};
           candidate.skins=Array.isArray(candidate.skins)?candidate.skins:[];
+          candidate.favs=Array.isArray(candidate.favs)?candidate.favs.filter(Boolean):[];
+          candidate.polls=Array.isArray(candidate.polls)?candidate.polls:[];
           candidate.sys=candidate.sys||{keepAlive:false,notify:false};
           candidate.contacts.forEach((ct,i)=>{
             ct.cfg={...DEF_CFG,...(ct.cfg||{})};ct.msgs=Array.isArray(ct.msgs)?ct.msgs:[];ct.letters=Array.isArray(ct.letters)?ct.letters:[];ct.moments=Array.isArray(ct.moments)?ct.moments:[];ct.momPending=Array.isArray(ct.momPending)?ct.momPending:[];ct.momUnread=ct.momUnread||0;ct.momPlan=ct.momPlan||null;ct.momDay=ct.momDay||{day:'',count:0};ct.profile={name:'联系人',avatar:'',myAvatar:'',bg:'',myName:'我',...(ct.profile||{})};delete ct.status;ct.sel=Array.isArray(ct.sel)?ct.sel:candidate.groups.map(g=>g.id);
@@ -2642,7 +2657,7 @@ function importFullBackup(){
           Object.keys(G).forEach(k=>delete G[k]);Object.assign(G,candidate);
           G.cur=null;V.q='';V.type='all';V.group='all';V.multi=false;V.sel.clear();applySkin();view='list';closePop();closePP();$('list').hidden=false;['cardsPage','cfgPage'].forEach(i=>{const e=$(i);if(e)e.hidden=true});
           booted=true;try{localStorage.setItem('zk4_lite',JSON.stringify({contacts:G.contacts.map(c=>({id:c.id,profile:{...c.profile,avatar:'',myAvatar:'',bg:'',callBg:'',momCover:''},cfg:c.cfg,sel:c.sel}))}))}catch(e){}
-          await new Promise(r=>setTimeout(r,0));renderList();toast('完整备份导入成功');
+          await new Promise(r=>setTimeout(r,0));setTab('msg');toast('完整备份导入成功');
         }catch(e){console.error(e);toast('导入失败，当前页面数据未替换：'+(e.message||'未知错误'))}
       },'确认导入');
     }).catch(e=>{console.error(e);toast('备份读取失败，未更改现有数据：'+(e.message||'文件无效'))});
@@ -3746,7 +3761,7 @@ html body #app #chat .r>.seen{align-self:flex-end;margin:0 0 4px 0}
 html body #app #chat .gh{display:none!important}
 
 /* 气泡：渐变 + 描边 + 阴影，靠头像一侧带小尾巴 */
-#app #chat .r .m:not(.pic):not(.pay):not(.emo):not(.poll){border-radius:7px!important;padding:6px 10px!important;max-width:calc(100% - 54px)!important;font-size:var(--fs,14px)!important;line-height:20px!important;box-shadow:var(--bsh)!important;border:1px solid transparent!important}
+#app #chat .r .m:not(.pic):not(.pay):not(.emo):not(.poll){border-radius:var(--br,7px)!important;padding:6px 10px!important;max-width:calc(100% - 54px)!important;font-size:var(--fs,14px)!important;line-height:20px!important;box-shadow:var(--bsh)!important;border:1px solid transparent!important}
 #app #chat .r.theirs .m:not(.pic):not(.pay):not(.emo):not(.poll){background:var(--bt-bg)!important;color:var(--bt-tx)!important;border-color:var(--bt-bd)!important;border-bottom-left-radius:2px!important}
 #app #chat .r.mine .m:not(.pic):not(.pay):not(.emo):not(.poll){background:var(--bm-bg)!important;color:var(--bm-tx)!important;border-color:var(--bm-bd)!important;border-bottom-right-radius:2px!important}
 #app #chat .r .m:not(.pic):not(.pay):not(.emo):not(.poll)::before{content:none!important;display:none!important}
@@ -3912,4 +3927,21 @@ body.has-tabbar .mx-feed{padding-bottom:calc(80px + env(safe-area-inset-bottom))
 .me-row span{flex:none}
 .me-row em{flex:1;min-width:0;text-align:right;font-style:normal;color:var(--dsepc);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .me-row i{font-style:normal;color:var(--dsepc);font-size:18px}
+</style>
+
+<style id="bar-pill">
+:root{--pill:#f2f2f4}
+@media(prefers-color-scheme:dark){:root{--pill:#1c1c1e}}
+html.notail #app #chat .r .m:not(.pic):not(.pay):not(.emo):not(.poll)::after{display:none!important}
+html body #app footer.bar{background:var(--pg)!important;border-top:0!important;box-shadow:none!important;gap:8px!important;padding:6px 10px max(8px,calc(var(--sab,env(safe-area-inset-bottom)) - 14px))!important}
+html body #app.cbg footer.bar{background:transparent!important}
+html body #app footer.bar .plus,html body #app footer.bar .sendc,html body #app footer.bar .sendc.hide{flex:0 0 40px!important;width:40px!important;min-width:40px!important;height:40px!important;min-height:40px!important;border-radius:50%!important;border:0!important;background:var(--pill)!important;box-shadow:0 1px 4px rgba(0,0,0,.1)!important;color:var(--ink)!important}
+html body #app footer.bar .sendc:not(.hide){background:var(--ink)!important;color:var(--pg)!important;opacity:1!important}
+html body #app footer.bar .sendc.hide{opacity:.6!important}
+html body #app footer.bar .plus svg{width:20px;height:20px}
+html body #app footer.bar .sendc svg{width:18px;height:18px}
+html body #app footer.bar .field{min-height:40px!important;border:0!important;border-radius:20px!important;background:var(--pill)!important;box-shadow:0 1px 4px rgba(0,0,0,.1)!important;padding:0 4px 0 2px!important}
+html body #app footer.bar .field .act{display:grid!important;place-items:center;flex:none;width:34px!important;height:34px!important;padding:0!important;border:0!important;background:none!important;box-shadow:none!important}
+html body #app footer.bar .field .act svg{width:22px;height:22px}
+html body #app footer.bar .field #ta{height:34px!important;min-height:34px!important;padding:5px 8px 5px 14px!important;font-size:16px!important;line-height:24px!important}
 </style>
