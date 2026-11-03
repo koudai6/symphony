@@ -1190,14 +1190,6 @@ header{padding-right:10px!important}
   <div class="call-bot" id="callBot"></div>
 </div>
 <div id="pill" hidden><span class="pav" id="pillAv"></span><span id="pillName"></span><span id="pillTime">00:00</span></div>
-<section class="ls" id="dc">
-  <div class="ltop"><button id="dcBack">‹ 返回</button><b>Choices</b><button class="k" id="dcNew">新建</button></div>
-  <div class="lbody" id="dcList"></div>
-</section>
-<section class="ls l2" id="dce">
-  <div class="ltop"><button id="deCancel">取消</button><b>编辑问卷</b><button class="k" id="deSave">保存</button></div>
-  <div class="lscroll" id="deBody"></div>
-</section>
 <section class="ls mom" id="mom">
   <div class="mscroll" id="mScroll"></div>
   <div class="mcb" id="mcb" hidden><input id="mcIn" placeholder="评论" maxlength="100"><button id="mcSend">发送</button></div>
@@ -1259,8 +1251,8 @@ header{padding-right:10px!important}
 <script>
 (()=>{
 const $=id=>document.getElementById(id);
-const DEF_CFG={minDelay:30,maxDelay:120,cardMin:1,cardMax:3,emojiMix:true,patProb:13,quoteProb:20,callProb:5,callRejectProb:20,keepAlive:false,notify:false,stickerProb:20,emojiProb:20,spliceOn:true,readOn:true,spliceProb:30,spliceMin:2,spliceMax:3,readProb:10,pollMin:3,pollMax:10,momLikeProb:80,momCommentProb:60,momReplyProb:60,momMin:20,momMax:300,momDaily:1,idleMin:10,listenSwitchProb:5,callMinDelay:1,callMaxDelay:4,callCardMin:1,callCardMax:2,callEmojiProb:20,callSpliceProb:30,statusOn:true,statusHours:6,statusProb:100,transferOn:true,transferProb:5,transferAcceptProb:80,transferMin:3,transferMax:15,transferAmtMin:1,transferAmtMax:200,letterMin:1,letterMax:6,letterDaily:1,letterCardMin:6,letterCardMax:14};
-const G={contacts:[],cur:null,cards:[],groups:[{id:'public',name:'公共（未分组）',enabled:true}],cardSeq:1,polls:[],favs:[],skin:{bm:'',bmc:'',bt:'',btc:'',br:0,fs:0,css:'',tg:'both',notail:false},skins:[],sys:{keepAlive:false,notify:false}};
+const DEF_CFG={minDelay:30,maxDelay:120,cardMin:1,cardMax:3,emojiMix:true,patProb:13,quoteProb:20,callProb:5,callRejectProb:20,keepAlive:false,notify:false,stickerProb:20,emojiProb:20,spliceOn:true,readOn:true,spliceProb:30,spliceMin:2,spliceMax:3,readProb:10,momLikeProb:80,momCommentProb:60,momReplyProb:60,momMin:20,momMax:300,momDaily:1,idleMin:10,listenSwitchProb:5,callMinDelay:1,callMaxDelay:4,callCardMin:1,callCardMax:2,callEmojiProb:20,callSpliceProb:30,statusOn:true,statusHours:6,statusProb:100,transferOn:true,transferProb:5,transferAcceptProb:80,transferMin:3,transferMax:15,transferAmtMin:1,transferAmtMax:200,letterMin:1,letterMax:6,letterDaily:1,letterCardMin:6,letterCardMax:14};
+const G={contacts:[],cur:null,cards:[],groups:[{id:'public',name:'公共（未分组）',enabled:true}],cardSeq:1,favs:[],skin:{bm:'',bmc:'',bt:'',btc:'',br:0,fs:0,css:'',tg:'both',notail:false},skins:[],sys:{keepAlive:false,notify:false}};
 const ctOf=id=>G.contacts.find(c=>c.id===id);
 const cur=()=>ctOf(G.cur);
 const S={};
@@ -1308,7 +1300,6 @@ function render(keep){
     const r=h('div','r '+(m.mine?'mine':'theirs')+(first?' first':''));r.dataset.id=m.id;
     const e=document.createElement('div');
     if(m.type==='voice')vBubble(m,e);
-    else if(m.type==='poll')pollCard(m,e);
     else if(m.type==='transfer')xferCard(m,e);
     else if(m.type==='image'){
       e.className='m pic'+(m.sticker?' stk':'');
@@ -1488,10 +1479,9 @@ const PPI={
   skin:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a9 9 0 0 0 0 18c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1.1.9-2 2-2h2.4a3.6 3.6 0 0 0 3.6-3.6C21 6.4 16.9 3 12 3zM6.5 12a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3-4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3 4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/></svg>',
   cfg:'<svg viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M19.4 13a7.7 7.7 0 0 0 0-2l2-1.6a.5.5 0 0 0 .1-.6l-1.9-3.3a.5.5 0 0 0-.6-.2l-2.4 1a7.4 7.4 0 0 0-1.7-1l-.4-2.5a.5.5 0 0 0-.5-.4h-3.8a.5.5 0 0 0-.5.4l-.4 2.5c-.6.2-1.2.6-1.7 1l-2.4-1a.5.5 0 0 0-.6.2L2.5 8.8a.5.5 0 0 0 .1.6l2 1.6a7.7 7.7 0 0 0 0 2l-2 1.6a.5.5 0 0 0-.1.6l1.9 3.3c.1.2.4.3.6.2l2.4-1c.5.4 1.1.8 1.7 1l.4 2.5c0 .2.2.4.5.4h3.8c.3 0 .5-.2.5-.4l.4-2.5c.6-.2 1.2-.6 1.7-1l2.4 1c.2.1.5 0 .6-.2l1.9-3.3a.5.5 0 0 0-.1-.6l-2-1.6zM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg>'
 };
-PPI.poll='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.54 11 13 7.46l1.41-1.41 2.12 2.12 4.24-4.24 1.41 1.41L16.54 11zM11 7H2v2h9V7zm10 6.41L19.59 12 17 14.59 14.41 12 13 13.41 15.59 16 13 18.59 14.41 20 17 17.41 19.59 20 21 18.59 18.41 16 21 13.41zM11 15H2v2h9v-2z"/></svg>';
 PPI.fav='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6L2.5 9.4l6.6-.8z"/></svg>';
 PPI.moments='<svg viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm3.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM4 18h16v-2.2l-4-4-4.2 4.2-2.8-2.8L4 16.2V18z"/></svg>';
-const PP_ITEMS=[['sticker','表情包'],['image','相册'],['cards','字卡库'],['transfer','转账'],['poll','抉择'],['cfg','设置'],['pat','拍一拍'],['skin','装扮'],['fav','我的收藏']];
+const PP_ITEMS=[['sticker','表情包'],['image','相册'],['cards','字卡库'],['transfer','转账'],['cfg','设置'],['pat','拍一拍'],['skin','装扮'],['fav','我的收藏']];
 function plusAction(a){
   if(a==='image')pickFiles(1280,.82,()=>{});
   else if(a==='cfg')openCfg();
@@ -1501,7 +1491,6 @@ function plusAction(a){
   else if(a==='skin')skinDlg();
   else if(a==='fav')favDlg();
   else if(a==='transfer')xferDlg();
-  else if(a==='poll')openDC();
   else if(a==='moments')openMom();
   else toast('这个功能下一步接入');
 }
@@ -1545,7 +1534,7 @@ $('sheetPlus').querySelectorAll('button').forEach(b=>b.onclick=()=>{
 });
 
 /* 回复设置：改完立即保存 */
-const FIELDS=[['minDelay','对方回复最快（秒）',1,3600],['maxDelay','对方回复最慢（秒）',1,3600],['cardMin','每次回复字卡最少张数',1,10],['cardMax','每次回复字卡最多张数',1,10],['patProb','对方拍一拍概率 %',0,100],['callProb','对方主动来电概率 %',0,100],['callRejectProb','对方拒接我的电话概率 %',0,100],['quoteProb','对方引用我的消息概率 %',0,100],['stickerProb','对方回复变成表情包的概率 %',0,100],['emojiProb','对方回复变成 Emoji 的概率 %',0,100],['spliceProb','对方拼字卡概率 %',0,100],['spliceMin','拼字卡最少拼几句',2,10],['spliceMax','拼字卡最多拼几句',2,10],['readProb','对方已读不回概率 %',0,100],['pollMin','对方最快几秒做出选择',1,3600],['pollMax','对方最慢几秒做出选择',1,3600],['momLikeProb','对方给我的动态点赞概率 %',0,100],['momCommentProb','对方评论我的动态概率 %',0,100],['momReplyProb','对方回复我的评论概率 %',0,100],['momMin','对方最快几秒来互动',1,86400],['momMax','对方最慢几秒来互动',1,86400],['momDaily','对方一天最多主动发几条动态（0=不发）',0,10],['idleMin','聊天页无操作几分钟后对方主动发消息（0=关闭）',0,1440],['listenSwitchProb','一起听时对方切歌概率',0,100],['callMinDelay','通话中对方回复最快（秒）',1,60],['callMaxDelay','通话中对方回复最慢（秒）',1,60],['callCardMin','通话每次回复字卡最少张数',1,10],['callCardMax','通话每次回复字卡最多张数',1,10],['callEmojiProb','通话回复变成 Emoji 的概率 %',0,100],['callSpliceProb','通话回复拼字卡概率 %',0,100],['statusHours','对方每隔几小时换一次状态',1,720],['statusProb','到点后真的换状态的概率 %',0,100],['transferProb','对方主动转账概率 %',0,100],['transferAcceptProb','对方收下我转账的概率 %',0,100],['transferMin','对方处理我的转账最快（秒）',1,3600],['transferMax','对方处理我的转账最慢（秒）',1,3600],['transferAmtMin','对方转账金额最小（元）',1,99999],['transferAmtMax','对方转账金额最大（元）',1,99999],['letterMin','对方最快几小时回信（0=立刻）',0,168],['letterMax','对方最慢几小时回信',0,168],['letterDaily','对方一天最多主动写几封信（0=不写）',0,10],['letterCardMin','每封信最少用几张字卡',2,30],['letterCardMax','每封信最多用几张字卡',2,30]];
+const FIELDS=[['minDelay','对方回复最快（秒）',1,3600],['maxDelay','对方回复最慢（秒）',1,3600],['cardMin','每次回复字卡最少张数',1,10],['cardMax','每次回复字卡最多张数',1,10],['patProb','对方拍一拍概率 %',0,100],['callProb','对方主动来电概率 %',0,100],['callRejectProb','对方拒接我的电话概率 %',0,100],['quoteProb','对方引用我的消息概率 %',0,100],['stickerProb','对方回复变成表情包的概率 %',0,100],['emojiProb','对方回复变成 Emoji 的概率 %',0,100],['spliceProb','对方拼字卡概率 %',0,100],['spliceMin','拼字卡最少拼几句',2,10],['spliceMax','拼字卡最多拼几句',2,10],['readProb','对方已读不回概率 %',0,100],['momLikeProb','对方给我的动态点赞概率 %',0,100],['momCommentProb','对方评论我的动态概率 %',0,100],['momReplyProb','对方回复我的评论概率 %',0,100],['momMin','对方最快几秒来互动',1,86400],['momMax','对方最慢几秒来互动',1,86400],['momDaily','对方一天最多主动发几条动态（0=不发）',0,10],['idleMin','聊天页无操作几分钟后对方主动发消息（0=关闭）',0,1440],['listenSwitchProb','一起听时对方切歌概率',0,100],['callMinDelay','通话中对方回复最快（秒）',1,60],['callMaxDelay','通话中对方回复最慢（秒）',1,60],['callCardMin','通话每次回复字卡最少张数',1,10],['callCardMax','通话每次回复字卡最多张数',1,10],['callEmojiProb','通话回复变成 Emoji 的概率 %',0,100],['callSpliceProb','通话回复拼字卡概率 %',0,100],['statusHours','对方每隔几小时换一次状态',1,720],['statusProb','到点后真的换状态的概率 %',0,100],['transferProb','对方主动转账概率 %',0,100],['transferAcceptProb','对方收下我转账的概率 %',0,100],['transferMin','对方处理我的转账最快（秒）',1,3600],['transferMax','对方处理我的转账最慢（秒）',1,3600],['transferAmtMin','对方转账金额最小（元）',1,99999],['transferAmtMax','对方转账金额最大（元）',1,99999],['letterMin','对方最快几小时回信（0=立刻）',0,168],['letterMax','对方最慢几小时回信',0,168],['letterDaily','对方一天最多主动写几封信（0=不写）',0,10],['letterCardMin','每封信最少用几张字卡',2,30],['letterCardMax','每封信最多用几张字卡',2,30]];
 const DEC=new Set([]);
 const SWITCHES=[['emojiMix','表情包 / Emoji 混合发送'],['spliceOn','启用拼字卡'],['readOn','启用已读不回'],['transferOn','启用转账（总开关）']];
 const CFG_GROUPS=[
@@ -1556,7 +1545,6 @@ const CFG_GROUPS=[
   ['拍一拍',['patProb']],
   ['打电话',['callProb','callRejectProb']],
   ['转账',['transferOn','transferProb','transferAcceptProb','transferMin','transferMax','transferAmtMin','transferAmtMax']],
-  ['抉择',['pollMin','pollMax']],
   ['小空间',['momLikeProb','momCommentProb','momReplyProb','momMin','momMax','momDaily']],
   ['信箱',['letterMin','letterMax','letterDaily','letterCardMin','letterCardMax']],
   ['后台',[]]
@@ -1569,12 +1557,11 @@ const TAB_HINT={
   '打电话':'对方回复完之后，按这个概率给你打电话；拒接概率是你打过去时对方拒接的几率。',
   '小空间':'你发动态后，对方会在最快和最慢之间随机等一会儿，再按概率点赞、评论；你回复他的评论、评论他的动态，他也会按概率回复。对方每天主动发的动态时间随机排在 9 点到 23 点之间。',
   '信箱':'你寄出信后，对方会在最快和最慢几小时之间随机等一会儿，再用字卡库里的文字字卡拼成一封信回给你；回信里会带上你那封信的内容。对方也会每天随机在 9 点到 23 点之间主动给你写信，一天最多几封可以设置。',
-  '抉择':'你发出问卷后，对方会在最快和最慢之间随机等一会儿，再按每个问题的单选 / 多选规则做出选择。',
   '拼字卡':'每条文字回复按这个概率，把几张字卡拼成一条长消息，一次拼几句在最少和最多之间随机；字卡库里可用的文字字卡不够时会自动少拼。',
   '转账':'总开关关闭后：加号面板里不再显示转账，对方也不会主动转账（已经发出的转账仍会被处理）。你转给对方时，对方会在最快和最慢之间随机等一会儿，再按「收下概率」决定收款还是退还。对方主动转账：每次回复结束后按概率发出，金额在最小和最大之间随机；点对方的转账卡片可以收款或拒收。',
   '已读不回':'你发消息后，对方按这个概率不回复，只发「已读」两个字。主动发消息（输入框为空时点发送键）不受影响。'
 };
-const UNIT={minDelay:'秒',maxDelay:'秒',cardMin:'张',cardMax:'张',spliceMin:'句',spliceMax:'句',idleMin:'分钟',pollMin:'秒',pollMax:'秒',momMin:'秒',momMax:'秒',momDaily:'条',callMinDelay:'秒',callMaxDelay:'秒',callCardMin:'张',callCardMax:'张',statusHours:'小时',transferMin:'秒',transferMax:'秒',transferAmtMin:'元',transferAmtMax:'元'};
+const UNIT={minDelay:'秒',maxDelay:'秒',cardMin:'张',cardMax:'张',spliceMin:'句',spliceMax:'句',idleMin:'分钟',momMin:'秒',momMax:'秒',momDaily:'条',callMinDelay:'秒',callMaxDelay:'秒',callCardMin:'张',callCardMax:'张',statusHours:'小时',transferMin:'秒',transferMax:'秒',transferAmtMin:'元',transferAmtMax:'元'};
 function openCfg(){
   const tabs=$('cgTabs'),body=$('cgBody');tabs.innerHTML='';body.innerHTML='';
   $('cgWho').textContent=cur().profile.name;
@@ -1597,7 +1584,6 @@ function openCfg(){
         if(S.cfg.cardMin>S.cfg.cardMax){if(k==='cardMin')S.cfg.cardMax=v;else S.cfg.cardMin=v}
         if(S.cfg.spliceMin>S.cfg.spliceMax){if(k==='spliceMin')S.cfg.spliceMax=v;else S.cfg.spliceMin=v}
         if(S.cfg.momMin>S.cfg.momMax){if(k==='momMin')S.cfg.momMax=v;else S.cfg.momMin=v}
-        if(S.cfg.pollMin>S.cfg.pollMax){if(k==='pollMin')S.cfg.pollMax=v;else S.cfg.pollMin=v}
         if(S.cfg.letterMin>S.cfg.letterMax){if(k==='letterMin')S.cfg.letterMax=v;else S.cfg.letterMin=v}
         if(S.cfg.letterCardMin>S.cfg.letterCardMax){if(k==='letterCardMin')S.cfg.letterCardMax=v;else S.cfg.letterCardMin=v}
         if(S.cfg.callMinDelay>S.cfg.callMaxDelay){if(k==='callMinDelay')S.cfg.callMaxDelay=v;else S.cfg.callMinDelay=v}
@@ -1750,7 +1736,7 @@ function setQ(){
   $('qtxt').textContent=editing?'修改消息':quoted?('引用 '+(quoted.mine?(S.profile.myName||'我'):S.profile.name)+'：'+quoted.text):'';
 }
 $('qx').onclick=()=>{if(editing){editing=null;ta.value='';fit();toggle()}quoted=null;setQ()};
-const prev=m=>m.type==='voice'?'[语音]'+(m.text?' '+m.text:''):m.type==='poll'?'[抉择] '+m.poll.title:m.type==='image'?'[图片]':m.type==='transfer'?'[转账 ¥'+m.amount+']':m.type==='redpacket'?'[红包 ¥'+m.amount+']':m.text;
+const prev=m=>m.type==='voice'?'[语音]'+(m.text?' '+m.text:''):m.type==='image'?'[图片]':m.type==='transfer'?'[转账 ¥'+m.amount+']':m.type==='redpacket'?'[红包 ¥'+m.amount+']':m.text;
 function copyText(t){
   const ok=()=>toast('已复制');
   const fb=()=>{const x=document.createElement('textarea');x.value=t;x.style.cssText='position:fixed;opacity:0';document.body.append(x);x.select();try{document.execCommand('copy');ok()}catch(e){toast('复制失败')}x.remove()};
@@ -2644,7 +2630,7 @@ function importFullBackup(){
           candidate.skin={...SKIN_DEF,...(candidate.skin||{})};
           candidate.skins=Array.isArray(candidate.skins)?candidate.skins:[];
           candidate.favs=Array.isArray(candidate.favs)?candidate.favs.filter(Boolean):[];
-          candidate.polls=Array.isArray(candidate.polls)?candidate.polls:[];
+          candidate.contacts.forEach(ct=>{if(Array.isArray(ct.msgs))ct.msgs=ct.msgs.filter(m=>m&&m.type!=='poll')});
           candidate.sys=candidate.sys||{keepAlive:false,notify:false};
           candidate.contacts.forEach((ct,i)=>{
             ct.cfg={...DEF_CFG,...(ct.cfg||{})};ct.msgs=Array.isArray(ct.msgs)?ct.msgs:[];ct.letters=Array.isArray(ct.letters)?ct.letters:[];ct.moments=Array.isArray(ct.moments)?ct.moments:[];ct.momPending=Array.isArray(ct.momPending)?ct.momPending:[];ct.momUnread=ct.momUnread||0;ct.momPlan=ct.momPlan||null;ct.momDay=ct.momDay||{day:'',count:0};ct.profile={name:'联系人',avatar:'',myAvatar:'',bg:'',myName:'我',...(ct.profile||{})};delete ct.status;ct.sel=Array.isArray(ct.sel)?ct.sel:candidate.groups.map(g=>g.id);
@@ -2767,109 +2753,6 @@ function refreshBadges(){
   document.querySelectorAll('.pp-it[data-a="moments"] .pp-bd').forEach(b=>{b.hidden=!nm;b.textContent=nm});
   $('plus').classList.toggle('has-l',nm>0);
   if(typeof syncBadges==='function')syncBadges();
-}
-
-/* ========== 抉择（问卷：自定义问题和选项，单选 / 多选，对方帮你选） ========== */
-let editP=null;
-const newQ=()=>({id:Date.now()+Math.random(),q:'',opts:['',''],multi:false,min:1,max:2});
-function fixQ(q){const n=q.opts.length;q.min=Math.max(1,Math.min(Math.round(q.min)||1,n));q.max=Math.max(q.min,Math.min(Math.round(q.max)||q.min,n))}
-function openDC(){view='dc';closePP();$('dc').classList.add('on');renderDC()}
-function closeDC(){$('dc').classList.remove('on');view='chat';render()}
-function renderDC(){
-  const L=$('dcList');L.innerHTML='';
-  if(!G.polls.length){L.append(h('div','lempty','还没有问卷\n点右上角「新建」，写下问题和选项\n发给对方，对方会帮你选'));return}
-  G.polls.forEach(p=>{
-    const row=h('div','dcrow'),mid=h('div','dcm');
-    const ns=p.qs.filter(q=>!q.multi).length;
-    mid.append(h('b','',p.title||'未命名问卷'),h('small','',p.qs.length+' 个问题 · 单选 '+ns+' · 多选 '+(p.qs.length-ns)));
-    const send=h('button','dcsend','发给对方');send.onclick=e=>{e.stopPropagation();sendPoll(p)};
-    const del=h('button','dcdel','删除');del.onclick=e=>{e.stopPropagation();askYes('删除问卷「'+(p.title||'未命名')+'」？',()=>{G.polls=G.polls.filter(x=>x!==p);save();renderDC()})};
-    row.append(mid,send,del);row.onclick=()=>openEdit(p);L.append(row);
-  });
-}
-$('dcBack').onclick=closeDC;
-$('dcNew').onclick=()=>openEdit(null);
-function openEdit(p){
-  editP=p?JSON.parse(JSON.stringify(p)):{id:Date.now(),title:'',qs:[newQ()]};
-  editP._orig=p?p.id:null;drawEdit();$('dce').classList.add('on');$('deBody').scrollTop=0;
-}
-function drawEdit(){
-  const B=$('deBody'),P=editP,keep=B.scrollTop;B.innerHTML='';
-  const t=h('input','dti');t.placeholder='问卷名称，例如：今晚怎么过';t.value=P.title;t.maxLength=30;t.oninput=()=>{P.title=t.value};
-  B.append(h('div','mi dlab','Title'),t);
-  P.qs.forEach((q,qi)=>{
-    const card=h('div','dq'),top=h('div','dqt'),rm=h('button','dqx','删除问题');
-    rm.onclick=()=>{if(P.qs.length<=1){toast('至少保留一个问题');return}P.qs.splice(qi,1);drawEdit()};
-    top.append(h('span','mi','Q'+(qi+1)),rm);
-    const qin=h('input','dti');qin.placeholder='问题，例如：晚饭吃什么';qin.value=q.q;qin.maxLength=60;qin.oninput=()=>{q.q=qin.value};
-    card.append(top,qin);
-    q.opts.forEach((o,oi)=>{
-      const r=h('div','dqo'),inp=h('input','dti');inp.placeholder='选项 '+(oi+1);inp.value=o;inp.maxLength=30;inp.oninput=()=>{q.opts[oi]=inp.value};
-      const x=h('button','dqx2','×');x.onclick=()=>{if(q.opts.length<=2){toast('至少两个选项');return}q.opts.splice(oi,1);fixQ(q);drawEdit()};
-      r.append(inp,x);card.append(r);
-    });
-    const add=h('button','dqadd','＋ 添加选项');add.onclick=()=>{if(q.opts.length>=10){toast('最多 10 个选项');return}q.opts.push('');drawEdit()};
-    const seg=h('div','dseg'),b1=h('button',q.multi?'':'on','单选'),b2=h('button',q.multi?'on':'','多选');
-    b1.onclick=()=>{q.multi=false;drawEdit()};b2.onclick=()=>{q.multi=true;fixQ(q);drawEdit()};seg.append(b1,b2);
-    card.append(add,seg);
-    if(q.multi){
-      const mm=h('div','dmm'),mn=h('input','dnum'),mx=h('input','dnum');
-      mn.type=mx.type='number';mn.value=q.min;mx.value=q.max;
-      mn.onchange=()=>{q.min=+mn.value;fixQ(q);drawEdit()};mx.onchange=()=>{q.max=+mx.value;fixQ(q);drawEdit()};
-      mm.append(h('span','','对方最少选'),mn,h('span','','个，最多选'),mx,h('span','','个'));card.append(mm);
-    }
-    B.append(card);
-  });
-  const addq=h('button','dqadd big','＋ 添加问题');addq.onclick=()=>{if(P.qs.length>=10){toast('最多 10 个问题');return}P.qs.push(newQ());drawEdit()};
-  B.append(addq);B.scrollTop=keep;
-}
-$('deCancel').onclick=()=>$('dce').classList.remove('on');
-$('deSave').onclick=()=>{
-  const P=editP;
-  if(!P.title.trim()){toast('请填写问卷名称');return}
-  const qs=P.qs.map(q=>({...q,q:q.q.trim(),opts:q.opts.map(x=>x.trim()).filter(Boolean)})).filter(q=>q.q&&q.opts.length>=2);
-  if(!qs.length){toast('至少要有一个写了问题、并且有两个以上选项的问题');return}
-  qs.forEach(fixQ);
-  const out={id:P.id,title:P.title.trim(),qs:qs.map(q=>({id:q.id,q:q.q,opts:q.opts,multi:q.multi,min:q.min,max:q.max}))};
-  const i=G.polls.findIndex(x=>x.id===P._orig);
-  if(i>=0)G.polls[i]=out;else G.polls.push(out);
-  save();$('dce').classList.remove('on');renderDC();toast('已保存');
-};
-function sendPoll(p){
-  const ct=cur(),cfg=ct.cfg;
-  const m={id:Date.now()+Math.random(),mine:true,type:'poll',t:Date.now(),read:false,status:'pending',answers:null,
-    poll:{title:p.title,qs:p.qs.map(q=>({q:q.q,opts:[...q.opts],multi:q.multi,min:q.min,max:q.max}))}};
-  m.due=Date.now()+(cfg.pollMin+Math.random()*Math.max(0,cfg.pollMax-cfg.pollMin))*1000;
-  $('dc').classList.remove('on');view='chat';
-  push(m);schedulePoll(m,ct);
-}
-function schedulePoll(m,ct){
-  setTimeout(()=>{
-    if(!ct.msgs.includes(m)||m.status!=='pending')return;
-    m.answers=m.poll.qs.map(q=>{
-      const idx=q.opts.map((_,i)=>i).sort(()=>Math.random()-.5);
-      const n=q.multi?Math.min(q.opts.length,q.min+Math.floor(Math.random()*(q.max-q.min+1))):1;
-      return idx.slice(0,n).sort((a,b)=>a-b);
-    });
-    m.status='done';m.at=Date.now();
-    if(view==='chat'&&ct===cur())render(true);
-    save();notify(ct.profile.name,'对「'+m.poll.title+'」做出了选择');
-  },Math.max(800,(m.due||0)-Date.now()));
-}
-function pollCard(m,e){
-  e.className='m poll'+(m.status==='done'?' done':'');
-  e.append(h('div','pl-h','✦ 抉择 · '+m.poll.title));
-  m.poll.qs.forEach((q,qi)=>{
-    const blk=h('div','pl-q');
-    blk.append(h('div','pl-qt',(qi+1)+'. '+q.q+(q.multi?'（多选）':'')));
-    const w=h('div','pl-os');
-    q.opts.forEach((o,oi)=>{
-      const sel=!!m.answers&&m.answers[qi].includes(oi);
-      w.append(h('span','pl-o'+(sel?' sel':(m.answers?' off':'')),(sel?'✓ ':'')+o));
-    });
-    blk.append(w);e.append(blk);
-  });
-  e.append(h('div','pl-f',m.status==='done'?'对方已选择 · '+hhmm(m.at):'等待对方选择…'));
 }
 
 /* ========== 小空间（动态 / 点赞 / 评论 / 回复） ========== */
@@ -3068,12 +2951,12 @@ function setTab(n){
   refreshBadges();syncTab();
 }
 function syncTab(){
-  const show=['list','lbx','mom','mep'].includes(view)&&!$('momw').classList.contains('on')&&!$('dc').classList.contains('on')&&!$('dce').classList.contains('on')&&$('mcb').hidden;
+  const show=['list','lbx','mom','mep'].includes(view)&&!$('momw').classList.contains('on')&&$('mcb').hidden;
   $('tabbar').hidden=!show;document.body.classList.toggle('has-tabbar',show);
   document.querySelectorAll('#tabbar .tb').forEach(b=>b.classList.toggle('on',b.dataset.t===tabCur));
 }
 document.querySelectorAll('#tabbar .tb').forEach(b=>b.onclick=()=>setTab(b.dataset.t));
-{const mo=new MutationObserver(()=>syncTab());['mcb','momw','dc','dce'].forEach(i=>mo.observe($(i),{attributes:true,attributeFilter:['class','hidden']}))}
+{const mo=new MutationObserver(()=>syncTab());['mcb','momw'].forEach(i=>mo.observe($(i),{attributes:true,attributeFilter:['class','hidden']}))}
 function syncBadges(){
   const set=(t,on)=>{const b=document.querySelector('#tabbar .tb[data-t="'+t+'"] .bd');if(b)b.hidden=!on};
   set('msg',G.contacts.some(c=>c.unread>0)&&view!=='list');
@@ -3221,7 +3104,6 @@ setInterval(checkLetters,15000);
     if(Array.isArray(d.contacts))G.contacts=d.contacts;
     if(d.skin)G.skin={...G.skin,...d.skin};
     if(Array.isArray(d.skins))G.skins=d.skins;
-    if(Array.isArray(d.polls))G.polls=d.polls;
     if(Array.isArray(d.favs))G.favs=d.favs;
     if(d.sys)G.sys={...G.sys,...d.sys};
       }
@@ -3236,9 +3118,7 @@ setInterval(checkLetters,15000);
   G.cardSeq=Math.max(0,...G.cards.map(c=>Number(c.id)||0))+1;
   if(!G.contacts.length)newContact('对方','');
   G.cur=G.contacts[0].id;booted=true;applySkin();flush();showList();
-  G.contacts.forEach(ct=>ct.msgs.forEach(m=>{
-    if(m.type==='poll'&&m.status==='pending')schedulePoll(m,ct);
-  }));
+  G.contacts.forEach(ct=>{ct.msgs=ct.msgs.filter(m=>m&&m.type!=='poll')});
   checkMoments();
   if(G.sys.keepAlive){toast('点一下屏幕恢复后台保活');document.addEventListener('pointerdown',()=>{startKeep()},{once:true,capture:true})}
   if('serviceWorker' in navigator&&/^https?:/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{});
